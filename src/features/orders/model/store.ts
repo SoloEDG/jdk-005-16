@@ -11,7 +11,22 @@ interface Ports {
   consume: (id: string) => Receipt | null;
   release: (id: string) => void;
 }
-export function createOrders(ports: Ports, notice: Notice, hour: number) {
+interface LedgerPorts {
+  delivery: (args: {
+    hour: number;
+    orderId: string;
+    item: Item;
+    quantity: number;
+    revenue: number;
+    lines: Receipt["lines"];
+  }) => void;
+}
+export function createOrders(
+  ports: Ports,
+  ledger: LedgerPorts,
+  notice: Notice,
+  hour: number,
+) {
   const state = reactive({
     coins: 180,
     xp: 0,
@@ -60,11 +75,20 @@ export function createOrders(ports: Ports, notice: Notice, hour: number) {
       }
       o.status = "delivered";
       state.coins += o.reward;
+      // 按真实消耗的份额结转成本，关联合同与输入批次
+      ledger.delivery({
+        hour,
+        orderId: o.id,
+        item: o.item,
+        quantity: o.quantity,
+        revenue: o.reward,
+        lines: receipt.lines,
+      });
       state.xp += 40 + (receipt.quality > 1 ? 10 : 0);
       state.delivered++;
       state.orders.push(nextOrder(++state.serial, hour));
       notice(
-        `交付成功，收入 ¥${o.reward} / +${40 + (receipt.quality > 1 ? 10 : 0)} 经验`,
+        `交付成功，收入 ¥${o.reward} / 成本 ¥${receipt.cost} / +${40 + (receipt.quality > 1 ? 10 : 0)} 经验`,
       );
     },
     cancel(id: string) {
@@ -87,7 +111,7 @@ export function createOrders(ports: Ports, notice: Notice, hour: number) {
     },
     snapshot: () => JSON.parse(JSON.stringify(state)) as typeof state,
     restore: (data: typeof state) => {
-      Object.assign(state, data);
+      Object.assign(state, JSON.parse(JSON.stringify(data)));
     },
   };
 }

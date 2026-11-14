@@ -896,3 +896,183 @@ progress {
     margin-top: 10px;
   }
 }
+
+/* ===== 经营账（批次成本台账） ===== */
+.economy strong.neg {
+  color: #b4553f;
+}
+.ledger-panel {
+  max-height: 76vh;
+  overflow-y: auto;
+}
+.ledger-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.ledger-card {
+  background: #f4f6ea;
+  border: 1px solid #e0e4d1;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ledger-card small {
+  display: block;
+  font-size: 10px;
+  color: #7a8a6c;
+}
+.ledger-card strong {
+  display: block;
+  font-size: 19px;
+  color: #4d6b3f;
+  margin-top: 4px;
+}
+.ledger-card.neg strong {
+  color: #b4553f;
+}
+.ledger-checks {
+  border: 1px solid #e0e4d1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 3px 0;
+}
+.check-row b {
+  color: #5d8a48;
+}
+.check-row.bad b {
+  color: #b4553f;
+}
+.check-row span {
+  flex: 1;
+}
+.check-row small {
+  color: #98a78b;
+}
+.ledger-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11px;
+  color: #6a7a5c;
+  margin-bottom: 12px;
+}
+.unknown-note {
+  color: #c08a2e;
+}
+.ledger-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.ledger-filters button {
+  border: 1px solid #d5dbc4;
+  background: #f7f8ef;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #5d6b50;
+}
+.ledger-filters button.active {
+  background: #6a8f52;
+  color: #fff;
+  border-color: #6a8f52;
+}
+.ledger-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ledger-row {
+  border: 1px solid #e4e8d6;
+  border-radius: 8px;
+  padding: 9px 11px;
+  cursor: pointer;
+  background: #fff;
+}
+.ledger-row.open {
+  border-color: #9cb986;
+  background: #f6f9ef;
+}
+.ledger-row-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ledger-type {
+  font-size: 11px;
+  background: #eef2e2;
+  color: #4d6b3f;
+  border-radius: 5px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+.ledger-row.spoilage .ledger-type,
+.ledger-row.fee-loss .ledger-type {
+  background: #f6e3dc;
+  color: #b4553f;
+}
+.ledger-memo {
+  flex: 1;
+  font-size: 12px;
+}
+.ledger-time {
+  font-size: 10px;
+  color: #98a78b;
+  white-space: nowrap;
+}
+.ledger-cash {
+  font-size: 13px;
+  color: #4d6b3f;
+  white-space: nowrap;
+}
+.ledger-cash.neg {
+  color: #b4553f;
+}
+.ledger-refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ledger-refs small {
+  background: #f0f3e6;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: #6a7a5c;
+}
+.ledger-detail {
+  margin-top: 8px;
+  border-top: 1px dashed #d5dbc4;
+  padding-top: 8px;
+}
+.cost-line {
+  font-size: 11px;
+  color: #5d6b50;
+  margin: 2px 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cost-line.out {
+  color: #4d6b3f;
+  font-weight: 600;
+}
+.cost-line.bad {
+  color: #b4553f;
+}
+.inventory-row .cost-tag {
+  display: block;
+  color: #7a8a6c;
+  margin-top: 2px;
+}

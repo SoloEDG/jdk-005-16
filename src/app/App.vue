@@ -1,19 +1,48 @@
 <script setup lang="ts">
-import { ref, onUnmounted } from "vue";
+import { ref, computed, onUnmounted } from "vue";
 import { ClockPanel, weatherAt } from "../features/clock";
 import { FarmScene, FieldsPanel } from "../features/fields";
 import { WarehousePanel } from "../features/warehouse";
 import { WorkshopPanel } from "../features/workshop";
 import { OrdersPanel, EconomyPanel } from "../features/orders";
+import { LedgerPanel } from "../features/ledger";
 import { createWorkspace } from "./workspace";
 const farm = createWorkspace(),
   active = ref(0),
   tab = ref("warehouse");
-const { clock, warehouse, fields, workshop, orders, engine, notices } = farm;
+const { clock, warehouse, fields, workshop, orders, ledger, engine, notices } =
+  farm;
 const timer = setInterval(() => {
   if (!clock.state.paused) engine.advance(1);
 }, 1500);
 onUnmounted(() => clearInterval(timer));
+// 在制品实物快照：已投料待领取的加工任务
+const wips = computed(() =>
+  workshop.state.jobs
+    .filter((j) => j.status === "ready" && j.receipt)
+    .map((j) => ({
+      jobId: j.id,
+      inputCost: j.receipt!.cost,
+      fee: j.fee ?? 0,
+    })),
+);
+// 经营账核对报告（现金/库存成本/在长/在制品/利润/损耗）
+const report = computed(() =>
+  ledger.report(
+    warehouse.state.batches.map((b) => ({
+      id: b.id,
+      item: b.item,
+      quantity: b.quantity,
+      unitCost: b.unitCost,
+      costUnknown: b.costUnknown,
+    })),
+    fields.state.plots
+      .filter((p) => p.crop)
+      .map((p) => ({ plotId: p.id, cost: p.crop?.seedCost ?? 0 })),
+    wips.value,
+    orders.state.coins,
+  ),
+);
 function reset() {
   if (confirm("开始一座新农场？已保存的存档仍然保留。")) location.reload();
 }
@@ -44,6 +73,8 @@ function reset() {
           :coins="orders.state.coins"
           :xp="orders.state.xp"
           :delivered="orders.state.delivered"
+          :realized-profit="report.realizedProfit"
+          :inventory-cost="report.inventoryCost"
         />
       </div>
       <ClockPanel
@@ -72,7 +103,7 @@ function reset() {
             @select="fields.select"
             @plant="(id) => fields.plant(id, clock.state.hour)"
             @water="fields.water"
-            @harvest="fields.harvest"
+            @harvest="(id) => fields.harvest(id, clock.state.hour)"
           />
           <section class="activity">
             <span>农场手记</span>
@@ -99,6 +130,12 @@ function reset() {
             >
               订单
             </button>
+            <button
+              :class="{ active: tab === 'ledger' }"
+              @click="tab = 'ledger'"
+            >
+              经营账
+            </button>
           </div>
           <WarehousePanel
             v-if="tab === 'warehouse'"
@@ -120,6 +157,14 @@ function reset() {
             @reserve="orders.reserve"
             @deliver="(id) => orders.deliver(id, clock.state.hour)"
             @cancel="orders.cancel"
+          /><LedgerPanel
+            v-if="tab === 'ledger'"
+            :ledger="ledger"
+            :batches="warehouse.state.batches"
+            :plots="fields.state.plots"
+            :wips="wips"
+            :coins="orders.state.coins"
+            :wasted="warehouse.state.wasted"
           />
           <div class="tip-card">
             <span>✦ 今日小贴士</span>
